@@ -1,40 +1,8 @@
-
-# coding: utf-8
-
-# In[132]:
-
 import xlrd as xl
 import csv
 import requests
 import sys
-
-
-# In[135]:
-
-wb = xl.open_workbook('./app/static/zipcodes-fa15.xlsx')
-
-# In[136]:
-
-all_values = []
-for sheet in wb.sheets():
-    for row in range(sheet.nrows):
-        values = []
-        for col in range(sheet.ncols):
-            values.append(sheet.cell(row, col).value)
-        all_values.append(values)
-all_values = all_values[5:]
-
-# construct the hash table that converts zipcode to state
-
-state_from_zip = {}
-
-with open("./app/static/free-zipcode-database-Primary.csv", "r") as csv_file:
-    csv_reader = csv.reader(csv_file)
-    for row in csv_reader:
-        if not row[0] in state_from_zip:
-            state_from_zip[row[0]] = row[3]
-
-# In[146]:
+from json import dumps, dump
 
 table = {}
 
@@ -103,33 +71,67 @@ table["RI"] = northeast # rhode island
 table["HI"] = noncontig # hawaii
 table["AK"] = noncontig # alaska
 
-count = {}
+
+all_data = {}
+workbooks = ['./app/static/zipcodes-fa15.xlsx', './app/static/zipcodes-fa14.xlsx', './app/static/zipcodes-fa13.xlsx', './app/static/zipcodes-fa09.xls']
+for workbook in workbooks:
+    wb = xl.open_workbook(workbook)
+    all_values = []
+    for sheet in wb.sheets():
+        for row in range(sheet.nrows):
+            values = []
+            for col in range(sheet.ncols):
+                values.append(sheet.cell(row, col).value)
+            all_values.append(values)
+    all_values = all_values[5:]
+    all_data[workbook] = all_values
+
+# construct the hash table that converts zipcode to state
+state_from_zip = {}
+
+with open("./app/static/free-zipcode-database-Primary.csv", "r") as csv_file:
+    csv_reader = csv.reader(csv_file)
+    for row in csv_reader:
+        if not row[0] in state_from_zip:
+            state_from_zip[row[0]] = row[3]
+
+all_counts = {}
+for year in all_data.keys():
+    count = {}
+    for value in all_data[year]:
+        curr_zip = str(value[0])
+        num_students = value[1]
+        if(curr_zip in state_from_zip):
+            state = state_from_zip[curr_zip]
+            if(state in table):
+                ret_val = table[state]
+            else:
+                ret_val = "other"
+
+            if ret_val in count:
+                count[ret_val] += 1
+            else:
+                count[ret_val] = 0
+    all_counts[year] = count
+
 json_dict = {}
+years = []
+datas = []
+counts = []
+output_file = "./app/static/latest_json.json"
+for year in all_counts.keys():
+    # print (year + "-------")
+    for data in all_counts[year]:
+        if ('other' not in data):
+            # print (data, all_counts[year][data])
+            years.append(year)
+            datas.append(data)
+            counts.append(all_counts[year][data])
+    # print
 
-# In[ ]:
+json_dict["years"] = years
+json_dict["region_data"] = datas
+json_dict["num_students"] = counts
 
-for value in all_values:
-    curr_zip = str(value[0])
-    num_students = value[1]
-    if(curr_zip in state_from_zip):
-        state = state_from_zip[curr_zip]
-        if(state in table):
-            ret_val = table[state]
-        else:
-            ret_val = "other"
-
-        if ret_val in count:
-            count[ret_val] += 1
-        else:
-            count[ret_val] = 0
-
-
-# In[ ]:
-
-
-output_file = open("output.txt", "w")
-for key in count:
-    output_file.write(key + " : ")
-    output_file.write(str(count[key]) + "\n")
-
-output_file.close()
+with open(output_file, "w") as f:
+    dump(json_dict, f, indent=4)
