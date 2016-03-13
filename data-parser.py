@@ -1,19 +1,19 @@
 
 # coding: utf-8
 
-# In[59]:
+# In[132]:
 
 import xlrd as xl
 import requests
 from bs4 import BeautifulSoup
 
 
-# In[6]:
+# In[135]:
 
-wb = xl.open_workbook('./zipcodes-fa15.xlsx')
+wb = xl.open_workbook('./app/static/zipcodes-fa15.xlsx')
 
 
-# In[15]:
+# In[136]:
 
 all_values = []
 for sheet in wb.sheets():
@@ -25,7 +25,7 @@ for sheet in wb.sheets():
 all_values = all_values[5:]
 
 
-# In[129]:
+# In[137]:
 
 def get_state (zipcode):
     zipcode = str(zipcode)
@@ -40,4 +40,14 @@ def get_state (zipcode):
     else:
         state = None
     return state
+
+
+# In[139]:
+
+get_state('61820')
+
+
+# In[ ]:
+
+
 
