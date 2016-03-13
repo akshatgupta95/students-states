@@ -30,8 +30,6 @@
         d3.json(json, function (data) {
             //console.log(data);
             if (data.length != 0) {
-                var hashtag = data.hashtag;
-                $('#hashtag').text('#' + hashtag);
                 for (var i = 0; i < data.latitude.length; i++) {
                     var random = Math.random() * 10 - 6;
                     twitterData.push({
@@ -47,9 +45,7 @@
         });
     }
 
-    var negColor = 'rgb(242, 121, 0)';
-    var posColor = 'rgb(2, 115, 245)';
-    var neuColor = '#AEAFB0';
+    var bubbleColor = 'rgb(2, 115, 245)';
 
     /*var legendCircles = [{name: 'Negative', color:negColor}, {name: 'Positive',color: posColor}, {name: 'Neutral', color: neuColor}];
      var svg = d3.select("svg");
@@ -80,11 +76,7 @@
         //can define any colors here
         fills: {
             defaultFill: 'rgb(214, 188, 105)',
-            neg: negColor,
-            pos: posColor,
-            neutral: neuColor,
-            neutralHover: 'rgb(182, 190, 214)',
-            anotherColor: '#f56668'
+            bubbleFill: bubbleColor
         },
         dataType: 'json',
         geographyConfig: {
@@ -226,7 +218,7 @@
         padding-top: 5px;
     }
 
-    #hashtag {
+    #year {
         color: black;
     }
 
