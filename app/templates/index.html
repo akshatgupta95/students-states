@@ -7,13 +7,39 @@
     <script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
 </head>
 <body>
-<div id="header"><h2 id="title">Who goes to University of Illinois in <span id="year">?</span></h2>
+<div id="header"><h2 id="title">Who goes to University of Illinois in <span id="year"></span>?</h2>
     <div id="dataViz">
         <svg></svg>
     </div>
     <p>Created using <a href="http://datamaps.github.io/">DataMaps</a>, a plugin using D3.js</p>
 </body>
 <script>
+
+    var bubbles2015 = [
+        {name: 'westCoast', latitude: 39.133, longitude: -120.14, radius: 16, fillKey: 'color1'},
+        {name: 'eastCoast', latitude: 42.7, longitude: -73.6, radius: 8, fillKey: 'color1'},
+        {name: 'midwest', latitude: 40.75, longitude: -88.3, radius: 27, fillKey: 'color1'},
+        {name: 'southeast', latitude: 30.64, longitude: -82.87, radius: 6, fillKey: 'color1'},
+        {name: 'rockies', latitude: 46.7, longitude: -115.04, radius: 4, fillKey: 'color1'},
+        {name: 'southwest', latitude: 32.44, longitude: -101.7, radius: 12, fillKey: 'color1'},
+        {name: 'china', latitude: 34.35, longitude: 114.71, radius: 20, fillKey: 'color1'},
+        {name: 'india', latitude: 24.8, longitude: 78.55, radius: 12, fillKey: 'color1'},
+        {name: 'korea', latitude: 37.6, longitude: 128.55, radius: 8, fillKey: 'color1'},
+        {name: 'taiwan', latitude: 23.3, longitude: 120.95, radius: 5, fillKey: 'color1'},
+        {name: 'uk', latitude: 51.6, longitude: -1.48, radius: 5, fillKey: 'color1'},
+        {name: 'turkey', latitude: 39.89, longitude: 33.3, radius: 4, fillKey: 'color1'},
+        {name: 'malaysia', latitude: 3.26, longitude: 102.63, radius: 4, fillKey: 'color1'},
+        {name: 'japan', latitude: 36.2, longitude: 140.16, radius: 4, fillKey: 'color1'},
+        {name: 'indonesia', latitude: -6.48, longitude: 106.5, radius: 5, fillKey: 'color1'},
+        {name: 'australia', latitude: -32.2, longitude: 150.5, radius: 4, fillKey: 'color1'},
+        {name: 'brazil', latitude: -22.28, longitude: -44.36, radius: 4, fillKey: 'color1'},
+        {name: 'france', latitude: 48.63, longitude: 2.1, radius: 4, fillKey: 'color1'},
+        {name: 'germany', latitude: 52, longitude: 13.57, radius: 4, fillKey: 'color1'},
+        {name: 'hongkong', latitude: 22.27, longitude: 114.2, radius: 4, fillKey: 'color1'},
+        {name: 'nigeria', latitude: 7.7, longitude: 3.44, radius: 4, fillKey: 'color1'},
+    ];
+
+
     zipcodeData = [];
     regionData = [];
     function readRegionData() {
@@ -46,6 +72,9 @@
     }
 
     var bubbleColor = 'rgb(2, 115, 245)';
+    var color1 = bubbleColor;
+    var color2 = bubbleColor;
+    var color3 = bubbleColor;
 
     /*var legendCircles = [{name: 'Negative', color:negColor}, {name: 'Positive',color: posColor}, {name: 'Neutral', color: neuColor}];
      var svg = d3.select("svg");
@@ -66,6 +95,7 @@
      .attr("dx", 30)
      .attr("dy", function(d, i) { return i * 30 + 15 })
      .text(function(d) { return d.name });*/
+
     //basic map config with custom fills
     var map = new Datamap({
         scope: 'world',
@@ -117,58 +147,9 @@
         }
     });
 
-
-    var bubbles2015 = [
-        {name: 'westCoast', latitude: 39.133, longitude: -120.14, radius: 16, fillKey: 'neg'},
-        {name: 'eastCoast', latitude: 42.7, longitude: -73.6, radius: 8, fillKey: 'neg'},
-        {name: 'midwest', latitude: 40.75, longitude: -88.3, radius: 27, fillKey: 'neg'},
-        {name: 'southeast', latitude: 30.64, longitude: -82.87, radius: 6, fillKey: 'neg'},
-        {name: 'rockies', latitude: 46.7, longitude: -115.04, radius: 4, fillKey: 'neg'},
-        {name: 'southwest', latitude: 32.44, longitude: -101.7, radius: 12, fillKey: 'neg'},
-        {name: 'china', latitude: 34.35, longitude: 114.71, radius: 20, fillKey: 'neg'},
-        {name: 'india', latitude: 24.8, longitude: 78.55, radius: 12, fillKey: 'neg'},
-        {name: 'korea', latitude: 37.6, longitude: 128.55, radius: 8, fillKey: 'neg'},
-        {name: 'taiwan', latitude: 23.3, longitude: 120.95, radius: 5, fillKey: 'neg'},
-        {name: 'uk', latitude: 51.6, longitude: -1.48, radius: 5, fillKey: 'neg'},
-        {name: 'turkey', latitude: 39.89, longitude: 33.3, radius: 4, fillKey: 'neg'},
-        {name: 'malaysia', latitude: 3.26, longitude: 102.63, radius: 4, fillKey: 'neg'},
-        {name: 'japan', latitude: 36.2, longitude: 140.16, radius: 4, fillKey: 'neg'},
-        {name: 'indonesia', latitude: -6.48, longitude: 106.5, radius: 5, fillKey: 'neg'},
-        {name: 'australia', latitude: -32.2, longitude: 150.5, radius: 4, fillKey: 'neg'},
-        {name: 'brazil', latitude: -22.28, longitude: -44.36, radius: 4, fillKey: 'neg'},
-        {name: 'france', latitude: 48.63, longitude: 2.1, radius: 4, fillKey: 'neg'},
-        {name: 'germany', latitude: 52, longitude: 13.57, radius: 4, fillKey: 'neg'},
-        {name: 'hongkong', latitude: 22.27, longitude: 114.2, radius: 4, fillKey: 'neg'},
-        {name: 'nigeria', latitude: 7.7, longitude: 3.44, radius: 4, fillKey: 'neg'},
-    ];
-
-    var bubbles2000 = [
-        {name: 'westCoast', latitude: 39.133, longitude: -120.14, radius: 5, fillKey: 'anotherColor'},
-        {name: 'eastCoast', latitude: 42.7, longitude: -73.6, radius: 5, fillKey: 'anotherColor'},
-        {name: 'midwest', latitude: 40.75, longitude: -88.3, radius: 30, fillKey: 'anotherColor'},
-        {name: 'southeast', latitude: 30.64, longitude: -82.87, radius: 3, fillKey: 'anotherColor'},
-        {name: 'rockies', latitude: 46.7, longitude: -115.04, radius: 3, fillKey: 'anotherColor'},
-        {name: 'southwest', latitude: 32.44, longitude: -101.7, radius: 3, fillKey: 'anotherColor'},
-        {name: 'china', latitude: 34.35, longitude: 114.71, radius: 6, fillKey: 'anotherColor'},
-        {name: 'india', latitude: 24.8, longitude: 78.55, radius: 7, fillKey: 'anotherColor'},
-        {name: 'korea', latitude: 37.6, longitude: 128.55, radius: 8, fillKey: 'anotherColor'},
-        {name: 'taiwan', latitude: 23.3, longitude: 120.95, radius: 5, fillKey: 'anotherColor'},
-        {name: 'uk', latitude: 51.6, longitude: -1.48, radius: 6, fillKey: 'anotherColor'},
-        {name: 'turkey', latitude: 39.89, longitude: 33.3, radius: 4, fillKey: 'anotherColor'},
-        {name: 'malaysia', latitude: 3.26, longitude: 102.63, radius: 4, fillKey: 'anotherColor'},
-        {name: 'japan', latitude: 36.2, longitude: 140.16, radius: 4, fillKey: 'anotherColor'},
-        {name: 'indonesia', latitude: -6.48, longitude: 106.5, radius: 5, fillKey: 'anotherColor'},
-        {name: 'australia', latitude: -32.2, longitude: 150.5, radius: 3, fillKey: 'anotherColor'},
-        {name: 'brazil', latitude: -22.28, longitude: -44.36, radius: 3, fillKey: 'anotherColor'},
-        {name: 'france', latitude: 48.63, longitude: 2.1, radius: 3, fillKey: 'anotherColor'},
-        {name: 'germany', latitude: 52, longitude: 13.57, radius: 4, fillKey: 'anotherColor'},
-        {name: 'hongkong', latitude: 22.27, longitude: 114.2, radius: 3, fillKey: 'anotherColor'},
-        {name: 'nigeria', latitude: 7.7, longitude: 3.44, radius: 4, fillKey: 'anotherColor'},
-    ];
-
     makeBubbles();
     function makeBubbles() {
-        map.bubbles(bubbles2000);
+        map.bubbles(bubbles2015);
     }
 
     //make image responsive
