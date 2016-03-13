@@ -104,6 +104,7 @@ table["HI"] = noncontig # hawaii
 table["AK"] = noncontig # alaska
 
 count = {}
+json_dict = {}
 
 # In[ ]:
 
@@ -112,8 +113,6 @@ for value in all_values:
     num_students = value[1]
     if(curr_zip in state_from_zip):
         state = state_from_zip[curr_zip]
-        print(curr_zip + " mapped to " + state)
-
         if(state in table):
             ret_val = table[state]
         else:
@@ -123,9 +122,6 @@ for value in all_values:
             count[ret_val] += 1
         else:
             count[ret_val] = 0
-
-    else:
-        print(curr_zip + " not found in db")
 
 
 # In[ ]:
