@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="http://datamaps.github.io/scripts/datamaps.world.min.js?v=1"></script>
+    <script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+</head>
+<body>
+<div id="header"><h2 id="title">Who goes to University of Illinois in <span id="year">?</span></h2>
+    <div id="dataViz">
+        <svg></svg>
+    </div>
+    <p>Created using <a href="http://datamaps.github.io/">DataMaps</a>, a plugin using D3.js</p>
+</body>
+<script>
+    zipcodeData = [];
+    regionData = [];
+    function readRegionData() {
+        d3.json(json, function (data) {
+            console.log(data);
+        });
+    }
+    function readZipCodeData() {
+        d3.json(json, function (data) {
+            console.log(data);
+        });
+    }
+    function makeTheGraph() {
+        d3.json(json, function (data) {
+            //console.log(data);
+            if (data.length != 0) {
+                var hashtag = data.hashtag;
+                $('#hashtag').text('#' + hashtag);
+                for (var i = 0; i < data.latitude.length; i++) {
+                    var random = Math.random() * 10 - 6;
+                    twitterData.push({
+                        name: data.tweet[i],
+                        latitude: Number(data.latitude[i]) + random,
+                        longitude: Number(data.longitude[i]) + random,
+                        radius: 12,
+                        fillKey: data.sentiment[i]
+                    });
+                }
+                makeBubbles();
+            }
+        });
+    }
+
+    var negColor = 'rgb(242, 121, 0)';
+    var posColor = 'rgb(2, 115, 245)';
+    var neuColor = '#AEAFB0';
+
+    /*var legendCircles = [{name: 'Negative', color:negColor}, {name: 'Positive',color: posColor}, {name: 'Neutral', color: neuColor}];
+     var svg = d3.select("svg");
+     var circle = svg.selectAll("circle")
+     .data(legendCircles);
+
+     circle.enter().append("circle")
+     .attr("cy", function(d, i) { return i * 30 + 10 })
+     .attr("cx", 15 )
+     .attr("r", 10 )
+     .attr("fill", function(d){ return d.color; });
+
+     var text = svg.append("g")
+     .attr("class", "labels")
+     .selectAll("text")
+     .data(legendCircles)
+     .enter().append("text")
+     .attr("dx", 30)
+     .attr("dy", function(d, i) { return i * 30 + 15 })
+     .text(function(d) { return d.name });*/
+    //basic map config with custom fills
+    var map = new Datamap({
+        scope: 'world',
+        element: document.getElementById('dataViz'),
+        projection: 'mercator',
+        height: 600,
+        responsive: true,
+        //can define any colors here
+        fills: {
+            defaultFill: 'rgb(214, 188, 105)',
+            neg: negColor,
+            pos: posColor,
+            neutral: neuColor,
+            neutralHover: 'rgb(182, 190, 214)',
+            anotherColor: '#f56668'
+        },
+        dataType: 'json',
+        geographyConfig: {
+            dataUrl: null, //if not null, datamaps will fetch the map JSON (currently only supports topojson)
+            hideAntarctica: true,
+            borderWidth: 1,
+            borderOpacity: 1,
+            borderColor: '#FDFDFD',
+            popupTemplate: function (geography, data) {
+                return '<div class="hoverinfo"><strong>' + geography.properties.name + '</strong></div>';
+            },
+            popupOnHover: true,
+            highlightOnHover: true,
+            highlightFillColor: 'rgb(214, 180, 73)',
+            highlightBorderColor: 'rgba(250, 15, 160, 0.2)',
+            highlightBorderWidth: 1,
+            highlightBorderOpacity: 1
+        },
+        bubblesConfig: {
+            borderWidth: 1,
+            borderOpacity: 0,
+            borderColor: '#FFFFFF',
+            popupOnHover: true,
+            radius: null,
+            popupTemplate: function (geography, data) {
+                return '<div style="background-color:white; width: 200px">' + data.name + '</div>';
+            },
+            fillOpacity: 0.7,
+            animate: true,
+            highlightOnHover: true,
+            highlightFillColor: 'rgb(182, 190, 214)',
+            highlightBorderColor: 'rgba(250, 15, 160, 0.2)',
+            highlightBorderWidth: 1,
+            highlightBorderOpacity: 1,
+            highlightFillOpacity: 1,
+            exitDelay: 100,
+            key: JSON.stringify
+        }
+    });
+
+
+    var bubbles2015 = [
+        {name: 'westCoast', latitude: 39.133, longitude: -120.14, radius: 16, fillKey: 'neg'},
+        {name: 'eastCoast', latitude: 42.7, longitude: -73.6, radius: 8, fillKey: 'neg'},
+        {name: 'midwest', latitude: 40.75, longitude: -88.3, radius: 27, fillKey: 'neg'},
+        {name: 'southeast', latitude: 30.64, longitude: -82.87, radius: 6, fillKey: 'neg'},
+        {name: 'rockies', latitude: 46.7, longitude: -115.04, radius: 4, fillKey: 'neg'},
+        {name: 'southwest', latitude: 32.44, longitude: -101.7, radius: 12, fillKey: 'neg'},
+        {name: 'china', latitude: 34.35, longitude: 114.71, radius: 20, fillKey: 'neg'},
+        {name: 'india', latitude: 24.8, longitude: 78.55, radius: 12, fillKey: 'neg'},
+        {name: 'korea', latitude: 37.6, longitude: 128.55, radius: 8, fillKey: 'neg'},
+        {name: 'taiwan', latitude: 23.3, longitude: 120.95, radius: 5, fillKey: 'neg'},
+        {name: 'uk', latitude: 51.6, longitude: -1.48, radius: 5, fillKey: 'neg'},
+        {name: 'turkey', latitude: 39.89, longitude: 33.3, radius: 4, fillKey: 'neg'},
+        {name: 'malaysia', latitude: 3.26, longitude: 102.63, radius: 4, fillKey: 'neg'},
+        {name: 'japan', latitude: 36.2, longitude: 140.16, radius: 4, fillKey: 'neg'},
+        {name: 'indonesia', latitude: -6.48, longitude: 106.5, radius: 5, fillKey: 'neg'},
+        {name: 'australia', latitude: -32.2, longitude: 150.5, radius: 4, fillKey: 'neg'},
+        {name: 'brazil', latitude: -22.28, longitude: -44.36, radius: 4, fillKey: 'neg'},
+        {name: 'france', latitude: 48.63, longitude: 2.1, radius: 4, fillKey: 'neg'},
+        {name: 'germany', latitude: 52, longitude: 13.57, radius: 4, fillKey: 'neg'},
+        {name: 'hongkong', latitude: 22.27, longitude: 114.2, radius: 4, fillKey: 'neg'},
+        {name: 'nigeria', latitude: 7.7, longitude: 3.44, radius: 4, fillKey: 'neg'},
+    ];
+
+    var bubbles2000 = [
+        {name: 'westCoast', latitude: 39.133, longitude: -120.14, radius: 5, fillKey: 'anotherColor'},
+        {name: 'eastCoast', latitude: 42.7, longitude: -73.6, radius: 5, fillKey: 'anotherColor'},
+        {name: 'midwest', latitude: 40.75, longitude: -88.3, radius: 30, fillKey: 'anotherColor'},
+        {name: 'southeast', latitude: 30.64, longitude: -82.87, radius: 3, fillKey: 'anotherColor'},
+        {name: 'rockies', latitude: 46.7, longitude: -115.04, radius: 3, fillKey: 'anotherColor'},
+        {name: 'southwest', latitude: 32.44, longitude: -101.7, radius: 3, fillKey: 'anotherColor'},
+        {name: 'china', latitude: 34.35, longitude: 114.71, radius: 6, fillKey: 'anotherColor'},
+        {name: 'india', latitude: 24.8, longitude: 78.55, radius: 7, fillKey: 'anotherColor'},
+        {name: 'korea', latitude: 37.6, longitude: 128.55, radius: 8, fillKey: 'anotherColor'},
+        {name: 'taiwan', latitude: 23.3, longitude: 120.95, radius: 5, fillKey: 'anotherColor'},
+        {name: 'uk', latitude: 51.6, longitude: -1.48, radius: 6, fillKey: 'anotherColor'},
+        {name: 'turkey', latitude: 39.89, longitude: 33.3, radius: 4, fillKey: 'anotherColor'},
+        {name: 'malaysia', latitude: 3.26, longitude: 102.63, radius: 4, fillKey: 'anotherColor'},
+        {name: 'japan', latitude: 36.2, longitude: 140.16, radius: 4, fillKey: 'anotherColor'},
+        {name: 'indonesia', latitude: -6.48, longitude: 106.5, radius: 5, fillKey: 'anotherColor'},
+        {name: 'australia', latitude: -32.2, longitude: 150.5, radius: 3, fillKey: 'anotherColor'},
+        {name: 'brazil', latitude: -22.28, longitude: -44.36, radius: 3, fillKey: 'anotherColor'},
+        {name: 'france', latitude: 48.63, longitude: 2.1, radius: 3, fillKey: 'anotherColor'},
+        {name: 'germany', latitude: 52, longitude: 13.57, radius: 4, fillKey: 'anotherColor'},
+        {name: 'hongkong', latitude: 22.27, longitude: 114.2, radius: 3, fillKey: 'anotherColor'},
+        {name: 'nigeria', latitude: 7.7, longitude: 3.44, radius: 4, fillKey: 'anotherColor'},
+    ];
+
+    makeBubbles();
+    function makeBubbles() {
+        map.bubbles(bubbles2000);
+    }
+
+    //make image responsive
+    window.addEventListener('resize', function () {
+        map.resize();
+    });
+
+</script>
+<style>
+    body {
+        background-color: #ccd6dd;
+        padding: 0;
+    }
+
+    #header {
+        background-color: #fa9e93;
+        height: 45px;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        text-align: center;
+    }
+
+    #title {
+        text-align: center;
+        font-family: helvetica, sans-serif;
+        color: white;
+        margin: 0;
+        padding-top: 7px;
+        padding-left: 7px;
+        display: inline-block;
+    }
+
+    #dataViz {
+        position: relative;
+        width: 100%;
+        padding-top: 20px;
+        border: 1px solid black;
+        background-color: #9DCFE3;
+    }
+
+    #legend {
+        background-color: #ccd6dd;
+        width: 90px;
+        height: 90px;
+        position: absolute;
+        padding-top: 5px;
+    }
+
+    #hashtag {
+        color: black;
+    }
+
+    #jsonChoice {
+        display: inline-block;
+        float: right;
+        padding-right: 7px;
+        padding-top: 12px;
+    }
+</style>
+</html>
