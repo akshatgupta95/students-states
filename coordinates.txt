@@ -1,0 +1,13 @@
+pacific: 39.8638751,-123.742465
+
+midwest: 41.9653087,-91.8031071
+
+rocky: 41.2567792,-111.002006
+
+southwest: 32.0292207,-102.262669
+
+southeast: 32.8328426,-83.714382
+
+northeast: 42.3677199,-72.5757032
+
+noncontig: 24.1755886,-98.5275888 (in the middle of gulf of mexico lol)
