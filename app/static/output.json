@@ -1,0 +1,37 @@
+{
+  "Southwest": {
+    "Latitude": "41.2567792",
+    "Longitude": "-111.002006",
+    "Students": 296
+  },
+  "Midwest": {
+    "Latitude": "41.9653087",
+    "Longitude": "-91.8031071",
+    "Students": 2037
+  },
+  "Southeast": {
+    "Latitude": "32.0292207",
+    "Longitude": "-102.262669",
+    "Students": 961
+  },
+  "Northeast": {
+    "Latitude": "42.3677199",
+    "Longitude": "-72.5757032",
+    "Students": 861
+  },
+  "Noncontiguous": {
+    "Latitude": "24.1755886",
+    "Longitude": "-98.5275888",
+    "Students": 22
+  },
+  "Rocky Mountain": {
+    "Latitude": "41.2567792",
+    "Longitude": "-111.002006",
+    "Students": 153
+  },
+  "Pacific": {
+    "Latitude": "39.8638751",
+    "Longitude": "-123.742465",
+    "Students": 533
+  }
+}
