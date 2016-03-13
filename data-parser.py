@@ -4,20 +4,14 @@
 # In[132]:
 
 import xlrd as xl
+import csv
 import requests
 import sys
-from bs4 import BeautifulSoup
 
 
 # In[135]:
 
-out1 = open("out1.txt", "w")
-out1.write("hello world")
-out1.close()
-
-output_file = open("output.txt", "w")
 wb = xl.open_workbook('./app/static/zipcodes-fa15.xlsx')
-
 
 # In[136]:
 
@@ -30,23 +24,15 @@ for sheet in wb.sheets():
         all_values.append(values)
 all_values = all_values[5:]
 
+# construct the hash table that converts zipcode to state
 
-# In[137]:
+state_from_zip = {}
 
-def get_state (zipcode):
-    zipcode = str(zipcode)
-    url = "http://www.city-data.com/zips/" + zipcode + ".html"
-    r = requests.get(url)
-    data = r.text
-    soup = BeautifulSoup(data)
-    success_div = soup.findAll(attrs={"class":"alert alert-success"})
-    if (success_div is not None):
-        a = success_div[0].find('a')
-        state = str(a.text.split(',')[1].strip())
-    else:
-        state = None
-    return state
-
+with open("./app/static/free-zipcode-database-Primary.csv", "r") as csv_file:
+    csv_reader = csv.reader(csv_file)
+    for row in csv_reader:
+        if not row[0] in state_from_zip:
+            state_from_zip[row[0]] = row[3]
 
 # In[146]:
 
@@ -124,27 +110,30 @@ count = {}
 for value in all_values:
     curr_zip = str(value[0])
     num_students = value[1]
-    try:
-        ret_val = table[get_state(curr_zip)]
+    if(curr_zip in state_from_zip):
+        state = state_from_zip[curr_zip]
+        print(curr_zip + " mapped to " + state)
+
+        if(state in table):
+            ret_val = table[state]
+        else:
+            ret_val = "other"
+
         if ret_val in count:
             count[ret_val] += 1
         else:
             count[ret_val] = 0
-        print("succeded on " + curr_zip)
-        output_file.write(ret_val)
-    except:
-        print("failed on " + curr_zip)
-        pass
+
+    else:
+        print(curr_zip + " not found in db")
 
 
 # In[ ]:
 
-output_file.close()
 
-
-output_file2 = open("output2.txt", "w")
+output_file = open("output.txt", "w")
 for key in count:
-    output_file2.write(key)
-    output_file2.write(str(count[key]))
+    output_file.write(key + " : ")
+    output_file.write(str(count[key]) + "\n")
 
-output_file2.close()
+output_file.close()
