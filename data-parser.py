@@ -5,11 +5,17 @@
 
 import xlrd as xl
 import requests
+import sys
 from bs4 import BeautifulSoup
 
 
 # In[135]:
 
+out1 = open("out1.txt", "w")
+out1.write("hello world")
+out1.close()
+
+output_file = open("output.txt", "w")
 wb = xl.open_workbook('./app/static/zipcodes-fa15.xlsx')
 
 
@@ -111,6 +117,7 @@ table["RI"] = northeast # rhode island
 table["HI"] = noncontig # hawaii
 table["AK"] = noncontig # alaska
 
+count = {}
 
 # In[ ]:
 
@@ -119,12 +126,25 @@ for value in all_values:
     num_students = value[1]
     try:
         ret_val = table[get_state(curr_zip)]
-        print (ret_val)
+        if ret_val in count:
+            count[ret_val] += 1
+        else:
+            count[ret_val] = 0
+        print("succeded on " + curr_zip)
+        output_file.write(ret_val)
     except:
+        print("failed on " + curr_zip)
         pass
 
 
 # In[ ]:
 
+output_file.close()
 
 
+output_file2 = open("output2.txt", "w")
+for key in count:
+    output_file2.write(key)
+    output_file2.write(str(count[key]))
+
+output_file2.close()
