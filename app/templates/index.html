@@ -5,71 +5,85 @@
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://d3js.org/topojson.v1.min.js"></script>
     <script src="http://datamaps.github.io/scripts/datamaps.all.min.js?v=1"></script>
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
 </head>
 <body>
-<div id="header"><h2 id="title">Who goes to University of Illinois in <span id="year">2015</span>?</h2></div>
+<nav class="navbar navbar-default" id="header"><h2 id="title">Who goes to University of Illinois in <span
+        id="year">2015</span>?</h2>
+    <div id="yearChoice" class="navbar-right">Year: <select class="form-control" id="data_year" onchange="changeYear()">
+        <option value="fa15">Fall 2015</option>
+        <option value="fa14">Fall 2014</option>
+        <option value="fa13">Fall 2013</option>
+        <option value="fa09">Fall 2009</option>
+    </select></div>
+</nav>
 <div id="dataViz">
     <svg></svg>
 </div>
 <p>Created using <a href="http://datamaps.github.io/">DataMaps</a>, a plugin using D3.js</p>
 </body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 <script>
 
-    /*var bubbles2015 = [
-     {name: 'westCoast', latitude: 39.133, longitude: -120.14, radius: 16, fillKey: 'color1'},
-     {name: 'eastCoast', latitude: 42.7, longitude: -73.6, radius: 8, fillKey: 'color1'},
-     {name: 'midwest', latitude: 40.75, longitude: -88.3, radius: 27, fillKey: 'color1'},
-     {name: 'southeast', latitude: 30.64, longitude: -82.87, radius: 6, fillKey: 'color1'},
-     {name: 'rockies', latitude: 46.7, longitude: -115.04, radius: 4, fillKey: 'color1'},
-     {name: 'southwest', latitude: 32.44, longitude: -101.7, radius: 12, fillKey: 'color1'},
-     {name: 'china', latitude: 34.35, longitude: 114.71, radius: 20, fillKey: 'color1'},
-     {name: 'india', latitude: 24.8, longitude: 78.55, radius: 12, fillKey: 'color1'},
-     {name: 'korea', latitude: 37.6, longitude: 128.55, radius: 8, fillKey: 'color1'},
-     {name: 'taiwan', latitude: 23.3, longitude: 120.95, radius: 5, fillKey: 'color1'},
-     {name: 'uk', latitude: 51.6, longitude: -1.48, radius: 5, fillKey: 'color1'},
-     {name: 'turkey', latitude: 39.89, longitude: 33.3, radius: 4, fillKey: 'color1'},
-     {name: 'malaysia', latitude: 3.26, longitude: 102.63, radius: 4, fillKey: 'color1'},
-     {name: 'japan', latitude: 36.2, longitude: 140.16, radius: 4, fillKey: 'color1'},
-     {name: 'indonesia', latitude: -6.48, longitude: 106.5, radius: 5, fillKey: 'color1'},
-     {name: 'australia', latitude: -32.2, longitude: 150.5, radius: 4, fillKey: 'color1'},
-     {name: 'brazil', latitude: -22.28, longitude: -44.36, radius: 4, fillKey: 'color1'},
-     {name: 'france', latitude: 48.63, longitude: 2.1, radius: 4, fillKey: 'color1'},
-     {name: 'germany', latitude: 52, longitude: 13.57, radius: 4, fillKey: 'color1'},
-     {name: 'hongkong', latitude: 22.27, longitude: 114.2, radius: 4, fillKey: 'color1'},
-     {name: 'nigeria', latitude: 7.7, longitude: 3.44, radius: 4, fillKey: 'color1'}
-     ];*/
-    var map;
     worldMap();
     //usaMap();
     var bubbleColor = 'rgb(2, 115, 245)';
+    var regionData = {};
+    regionData['fa09'] = regionData['fa13'] = regionData['fa14'] = regionData['fa15'] = [];
     readRegionData();
 
     function readRegionData() {
-        var json = 'static/test.json';
+        var json = 'static/latest_json.json';
         d3.json(json, function (data) {
-            var regionData = [];
+
             console.log(data);
-            if (data.data.length != 0) {
-                var theData = data.data;
-                for (var i = 0; i < theData.length; i++) {
-                    regionData.push({
-                        name: theData[i].name,
-                        latitude: theData[i].latitude,
-                        longitude: theData[i].longitude,
-                        radius: theData[i].radius,
+            if (data.length != 0) {
+
+                for (var i = 0; i < data.region_data.length; i++) {
+                    var regionDataa = data.region_data[i];
+                    var splitData = regionDataa.split(',');
+                    var regionName = splitData[0];
+                    var latitude = splitData[1];
+                    var longitude = splitData[2];
+                    var numStudents = data.num_students[i];
+                    var yearXLSX = data.years[i];
+                    var fa = yearXLSX.indexOf('fa');
+                    var year = yearXLSX.substr(fa, 4);
+                    console.log(year);
+                    regionData[year].push({
+                        name: regionName,
+                        latitude: latitude,
+                        longitude: longitude,
+                        numStudents: numStudents,
+                        year: year,
+                        radius: mapNumToBubbleSize(numStudents),
                         fillKey: 'bubble'
                     });
                 }
-                makeBubbles(regionData);
+
+                makeBubbles('fa15');
             }
         });
     }
-    function readZipCodeData() {
-        d3.json(json, function (data) {
-            var zipcodeData = [];
-            console.log(data);
-        });
+
+    function mapNumToBubbleSize(num) {
+        if (num < 75) return 3;
+        if (num < 150) return 5;
+        if (num < 500) return 9;
+        if (num < 700) return 11;
+        if (num < 1000) return 13;
+        if (num < 1500) return 17;
+        return 22;
+    }
+
+    function changeYear() {
+        map.bubbles([]);
+        var dropdown = document.getElementById("data_year").value;
+        document.getElementById('year').innerHTML = '20' + dropdown.substr(2, 2);
+        console.log("change to" + dropdown);
+
+        makeBubbles(dropdown);
     }
 
     function worldMap() {
@@ -82,7 +96,7 @@
             //can define any colors here
             fills: {
                 defaultFill: 'rgb(214, 188, 105)',
-                bubble: bubbleColor
+                bubble: 'rgb(2, 115, 245)'
             },
             dataType: 'json',
             geographyConfig: {
@@ -176,8 +190,13 @@
         });
     }
 
-    function makeBubbles(data) {
-        map.bubbles([]);
+    function makeBubbles(year) {
+        //map.bubbles([]);
+        data = regionData[year];
+        console.log("BUBBLES FROM " + year);
+
+        //map.bubbles(data);
+
         map.bubbles(data, {
             borderColor: function (geo) {
                 return geo.fillKey
@@ -240,11 +259,9 @@
         padding: 0;
         top: 0;
         position: relative;
-        text-align: center;
     }
 
     #title {
-        text-align: center;
         font-family: helvetica, sans-serif;
         color: white;
         margin: 0;
@@ -259,8 +276,7 @@
         padding-top: 20px;
         border: 1px solid black;
         background-color: #9DCFE3;
-        height: 400px;
-        padding-bottom: 10% !important;
+        padding-bottom: 10%;
     }
 
     #legend {
@@ -275,11 +291,18 @@
         color: slategray;
     }
 
-    #jsonChoice {
+    #yearChoice {
         display: inline-block;
-        float: right;
-        padding-right: 7px;
-        padding-top: 12px;
+        padding-right: 50px;
+        padding-top: 8px;
+        width: 250px;
+    }
+
+    #data_year {
+        display: inline;
+        padding-right: 50px;
+        padding-top: 5px;
+        width: 70%;
     }
 </style>
 </html>
