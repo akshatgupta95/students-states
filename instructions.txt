@@ -1,0 +1,10 @@
+To run the visualization:
+```
+./run_all.sh
+```
+
+You might need the following libraries before you run the code. Use the following commands to import them:
+
+pip install xlrd
+pip install beautifulsoup4
+pip install flask
