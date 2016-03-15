@@ -67,8 +67,10 @@
     }
 
     function mapNumToBubbleSize(num) {
+        if (num < 20) return 2;
         if (num < 100) return num * .1;
         if (num < 800) return num * .02;
+        if (num < 1400) return num * .01;
         return num * .001;
     }
 
@@ -102,8 +104,8 @@
                 popupTemplate: function (geography, data) {
                     return '<div class="hoverinfo"><strong>' + geography.properties.name + '</strong></div>';
                 },
-                popupOnHover: true,
-                highlightOnHover: true,
+                popupOnHover: false,
+                highlightOnHover: false,
                 highlightFillColor: 'rgb(214, 180, 73)',
                 highlightBorderColor: 'rgba(250, 15, 160, 0.2)',
                 highlightBorderWidth: 1,
