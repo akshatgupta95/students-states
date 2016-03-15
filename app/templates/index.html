@@ -7,18 +7,20 @@
     <script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
     <!--<script src="http://datamaps.github.io/scripts/datamaps.all.min.js?v=1"></script>-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Graduate' rel='stylesheet' type='text/css'>
 </head>
 <body>
 <nav class="navbar navbar-default" id="header"><h2 id="title">Who goes to University of Illinois in <span
         id="year">2015</span>?</h2>
-    <div id="yearChoice" class="navbar-right">Year: <select class="form-control" id="data_year" onchange="changeYear()">
+</nav>
+<div id="dataViz">
+    <div id="yearChoice"><h4 id="yearText">View year :&nbsp;</h4><select class="form-control" id="data_year"
+                                                                         onchange="changeYear()">
         <option value="fa15">Fall 2015</option>
         <option value="fa14">Fall 2014</option>
         <option value="fa13">Fall 2013</option>
         <option value="fa09">Fall 2009</option>
     </select></div>
-</nav>
-<div id="dataViz">
     <svg></svg>
 </div>
 <p>Created using <a href="http://datamaps.github.io/">DataMaps</a>, a plugin using D3.js</p>
@@ -26,18 +28,30 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 <script>
 
-    worldMap();
-    var bubbleColor = 'rgb(2, 115, 245)';
+    //make the map
+    var map = worldMap();
+
+    //dictionary, hash by year ex. fa15
     var regionData = {};
-    regionData['fa09'] = regionData['fa13'] = regionData['fa14'] = regionData['fa15'] = [];
+    regionData['fa09'] = [];
+    regionData['fa13'] = [];
+    regionData['fa14'] = [];
+    regionData['fa15'] = [];
+
+    //cur year will be the data corresponding to the year being shown
+    var currYear = regionData['fa15'];
+
+    map.bubbles([]);
+
+    //read in the json data and make the bubbles
     readRegionData();
+
 
     function readRegionData() {
         var json = 'static/latest_json.json';
-        d3.json(json, function (data) {
 
-            console.log(data);
-            if (data.length != 0) {
+        d3.json(json, function (data) {
+            if (data.region_data.length != 0) {
 
                 for (var i = 0; i < data.region_data.length; i++) {
                     var regionDataa = data.region_data[i];
@@ -49,7 +63,7 @@
                     var yearXLSX = data.years[i];
                     var fa = yearXLSX.indexOf('fa');
                     var year = yearXLSX.substr(fa, 4);
-                    //console.log(year);
+
                     regionData[year].push({
                         name: regionName,
                         latitude: latitude,
@@ -60,28 +74,46 @@
                         fillKey: 'bubble'
                     });
                 }
+                console.log(regionData);
+                currYear = regionData['fa15'];
 
-                makeBubbles(regionData['fa15']);
             }
+            makeBubbles();
         });
+
     }
 
+    //set scale to be able to see the bubbles
     function mapNumToBubbleSize(num) {
-        if (num < 20) return 2;
-        if (num < 100) return num * .1;
-        if (num < 800) return num * .02;
-        if (num < 1400) return num * .01;
-        return num * .001;
+        var scale;
+        if (num < 100) {
+            scale = d3.scale.linear().domain([0, 100]).range([2, 3]);
+            return scale(num);
+        }
+        if (num < 500) {
+            scale = d3.scale.linear().domain([0, 500]).range([3, 5]);
+            return scale(num);
+        }
+        if (num < 2300) {
+            scale = d3.scale.linear().domain([0, 2200]).range([5, 9]);
+            return scale(num);
+        }
+        else if (num < 6000) {
+            scale = d3.scale.linear().domain([0, 5300]).range([9, 12]);
+            return scale(num);
+        }
+        return 22;
     }
 
+    //function called when dropdown changes
     function changeYear() {
         var dropdown = document.getElementById("data_year").value;
         document.getElementById('year').innerHTML = '20' + dropdown.substr(2, 2);
-        console.log("change to" + dropdown);
-
-        makeBubbles(regionData[dropdown]);
+        currYear = regionData[dropdown];
+        makeBubbles();
     }
 
+    //draws the map, can override properties if wanted
     function worldMap() {
         map = new Datamap({
             scope: 'world',
@@ -91,12 +123,12 @@
             responsive: true,
             //can define any colors here
             fills: {
-                defaultFill: 'rgb(214, 188, 105)',
-                bubble: 'rgb(2, 115, 245)'
+                defaultFill: '#A3D39C',
+                bubble: '#35404F'
             },
             dataType: 'json',
             geographyConfig: {
-                dataUrl: null, //if not null, datamaps will fetch the map JSON (currently only supports topojson)
+                dataUrl: null,
                 hideAntarctica: true,
                 borderWidth: 1,
                 borderOpacity: 1,
@@ -112,7 +144,7 @@
                 highlightBorderOpacity: 1
             },
             bubblesConfig: {
-                borderWidth: 1,
+                borderWidth: 0,
                 borderOpacity: 0,
                 borderColor: '#FFFFFF',
                 popupOnHover: true,
@@ -123,7 +155,7 @@
                             '<div><b>Students:</b> ' + data.numStudents + '</div>' +
                             '</div>';
                 },
-                fillOpacity: .7,
+                fillOpacity: 1,
                 animate: true,
                 highlightOnHover: true,
                 highlightFillColor: 'rgb(182, 190, 214)',
@@ -135,14 +167,11 @@
                 key: JSON.stringify
             }
         });
+        return map;
     }
 
-    function makeBubbles(data) {
-        map.bubbles([]);
-
-        //map.bubbles(data);
-
-        map.bubbles(data, {
+    function makeBubbles() {
+        var options = {
             borderColor: function (geo) {
                 return geo.fillKey
             }, highlightFillColor: function (geo) {
@@ -150,13 +179,9 @@
             }, highlightBorderColor: function (geo) {
                 return geo.fillKey
             }
-        });
+        };
+        map.bubbles(currYear, options);
     }
-
-    //make image responsive
-    window.addEventListener('resize', function () {
-        map.resize();
-    });
 
 </script>
 
@@ -167,7 +192,7 @@
     }
 
     #header {
-        background-color: #fa9e93;
+        background-color: #35404F;
         height: 45px;
         margin: 0;
         padding: 0;
@@ -176,52 +201,53 @@
     }
 
     #title {
-        font-family: helvetica, sans-serif;
+        font-family: 'Graduate', cursive;
         color: white;
         margin: 0;
         padding-top: 7px;
         padding-left: 7px;
         display: inline-block;
+
     }
 
     #dataViz {
         position: relative;
         width: 100%;
-        padding-top: 20px;
         border: 1px solid black;
-        background-color: #9DCFE3;
-        padding-bottom: 10%;
+        background-color: #7ACCC8;
+        padding-bottom: 0 !important;
     }
 
     #dataViz > svg {
-        /*height: 600px !important;*/
         position: relative;
-    }
-
-    #legend {
-        background-color: #ccd6dd;
-        width: 90px;
-        height: 90px;
-        position: absolute;
-        padding-top: 5px;
+        padding-top: 30px;
     }
 
     #year {
-        color: slategray;
+        color: #E45F56;
     }
 
     #yearChoice {
         display: inline-block;
-        padding-right: 50px;
-        padding-top: 8px;
-        width: 250px;
+        padding: 8px;
+        width: 220px;
+        position: absolute;
+        z-index: 10;
+        right: 0;
+        background-color: #4AAAA5;
+        border-radius: 8px;
     }
 
     #data_year {
         display: inline;
         padding-right: 50px;
         padding-top: 5px;
-        width: 70%;
+        width: 50%;
+    }
+
+    #yearText {
+        color: #35404F;
+        display: inline;
     }
 
     .hoverinfo {
@@ -230,7 +256,6 @@
 
     .hoverBubble {
         background-color: white;
-        /*width: 200px;*/
         padding: 3px;
     }
 </style>
