@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://d3js.org/topojson.v1.min.js"></script>
-    <script src="http://datamaps.github.io/scripts/datamaps.all.min.js?v=1"></script>
+    <script src="http://datamaps.github.io/scripts/datamaps.world.min.js?v=1"></script>
+    <script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+    <!--<script src="http://datamaps.github.io/scripts/datamaps.all.min.js?v=1"></script>-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
 </head>
 <body>
@@ -22,12 +23,10 @@
 </div>
 <p>Created using <a href="http://datamaps.github.io/">DataMaps</a>, a plugin using D3.js</p>
 </body>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 <script>
 
     worldMap();
-    //usaMap();
     var bubbleColor = 'rgb(2, 115, 245)';
     var regionData = {};
     regionData['fa09'] = regionData['fa13'] = regionData['fa14'] = regionData['fa15'] = [];
@@ -50,7 +49,7 @@
                     var yearXLSX = data.years[i];
                     var fa = yearXLSX.indexOf('fa');
                     var year = yearXLSX.substr(fa, 4);
-                    console.log(year);
+                    //console.log(year);
                     regionData[year].push({
                         name: regionName,
                         latitude: latitude,
@@ -62,22 +61,23 @@
                     });
                 }
 
-                makeBubbles('fa15');
+                makeBubbles(regionData['fa15']);
             }
         });
     }
 
     function mapNumToBubbleSize(num) {
-        return Math.ceil(num/1000); // Math.ceil(Math.pow(Math.log(num),2));
+        if (num < 100) return num * .1;
+        if (num < 800) return num * .02;
+        return num * .001;
     }
 
     function changeYear() {
-        map.bubbles([]);
         var dropdown = document.getElementById("data_year").value;
         document.getElementById('year').innerHTML = '20' + dropdown.substr(2, 2);
         console.log("change to" + dropdown);
 
-        makeBubbles(dropdown);
+        makeBubbles(regionData[dropdown]);
     }
 
     function worldMap() {
@@ -116,7 +116,10 @@
                 popupOnHover: true,
                 radius: 8,
                 popupTemplate: function (geography, data) {
-                    return '<div style="background-color:white; width: 200px">' + data.name + '</div>';
+                    return '<div class="hoverBubble">' +
+                            '<div><b>Region:</b> ' + data.name + '</div>' +
+                            '<div><b>Students:</b> ' + data.numStudents + '</div>' +
+                            '</div>';
                 },
                 fillOpacity: .7,
                 animate: true,
@@ -132,62 +135,8 @@
         });
     }
 
-    function usaMap() {
-        map = new Datamap({
-            scope: 'usa',
-            element: document.getElementById('dataViz'),
-            /*projection: 'mercator',*/
-            height: 520,
-            responsive: true,
-            //can define any colors here
-            fills: {
-                defaultFill: 'rgb(214, 188, 105)',
-                bubble: bubbleColor
-            },
-            dataType: 'json',
-            /* geographyConfig: {
-             dataUrl: null, //if not null, datamaps will fetch the map JSON (currently only supports topojson)
-             hideAntarctica: true,
-             borderWidth: 1,
-             borderOpacity: 1,
-             borderColor: '#FDFDFD',
-             popupTemplate: function (geography, data) {
-             return '<div class="hoverinfo"><strong>' + geography.properties.name + '</strong></div>';
-             },
-             popupOnHover: true,
-             highlightOnHover: true,
-             highlightFillColor: 'rgb(214, 180, 73)',
-             highlightBorderColor: 'rgba(250, 15, 160, 0.2)',
-             highlightBorderWidth: 1,
-             highlightBorderOpacity: 1
-             },
-             bubblesConfig: {
-             borderWidth: 1,
-             borderOpacity: 0,
-             borderColor: '#FFFFFF',
-             popupOnHover: true,
-             radius: null,
-             popupTemplate: function (geography, data) {
-             return '<div style="background-color:white; width: 200px">' + data.name + '</div>';
-             },
-             fillOpacity: .7,
-             animate: true,
-             highlightOnHover: true,
-             highlightFillColor: 'rgb(182, 190, 214)',
-             highlightBorderColor: 'rgba(250, 15, 160, 0.2)',
-             highlightBorderWidth: 1,
-             highlightBorderOpacity: 0,
-             highlightFillOpacity: 1,
-             exitDelay: 100,
-             key: JSON.stringify
-             }*/
-        });
-    }
-
-    function makeBubbles(year) {
-        //map.bubbles([]);
-        data = regionData[year];
-        console.log("BUBBLES FROM " + year);
+    function makeBubbles(data) {
+        map.bubbles([]);
 
         //map.bubbles(data);
 
@@ -207,39 +156,8 @@
         map.resize();
     });
 
-    function createLegend() {
-        var legendCircles = [{name: 'Negative', color: negColor}, {name: 'Positive', color: posColor}, {
-            name: 'Neutral',
-            color: neuColor
-        }];
-        var svg = d3.select("svg");
-        var circle = svg.selectAll("circle")
-                .data(legendCircles);
-
-        circle.enter().append("circle")
-                .attr("cy", function (d, i) {
-                    return i * 30 + 10
-                })
-                .attr("cx", 15)
-                .attr("r", 10)
-                .attr("fill", function (d) {
-                    return d.color;
-                });
-
-        var text = svg.append("g")
-                .attr("class", "labels")
-                .selectAll("text")
-                .data(legendCircles)
-                .enter().append("text")
-                .attr("dx", 30)
-                .attr("dy", function (d, i) {
-                    return i * 30 + 15
-                })
-                .text(function (d) {
-                    return d.name
-                });
-    }
 </script>
+
 <style>
     body {
         background-color: #ccd6dd;
@@ -273,6 +191,11 @@
         padding-bottom: 10%;
     }
 
+    #dataViz > svg {
+        /*height: 600px !important;*/
+        position: relative;
+    }
+
     #legend {
         background-color: #ccd6dd;
         width: 90px;
@@ -297,6 +220,16 @@
         padding-right: 50px;
         padding-top: 5px;
         width: 70%;
+    }
+
+    .hoverinfo {
+        background-color: lightblue;
+    }
+
+    .hoverBubble {
+        background-color: white;
+        /*width: 200px;*/
+        padding: 3px;
     }
 </style>
 </html>
